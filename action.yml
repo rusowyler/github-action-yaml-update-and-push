@@ -1,0 +1,76 @@
+name: Run yq to update images and push result to another repository
+description: >-
+  Useful to push images updates to a master repository containing central manifests
+inputs:
+  yq-version:
+    description: "YQ version to use. Check: https://github.com/mikefarah/yq/releases"
+    required: true
+  yaml-file:
+    description: Path and file name to update. For example env/values.yaml
+    required: true
+  yaml-path:
+    description: >-
+      Path of the yaml property. The input must begin with a .
+      For example to update:
+        image:
+          tag: 1
+      Use: .image.tag
+    required: true
+  yaml-value:
+    description: The new value for yaml-path input
+    required: true
+  user-email:
+    description: Email for the git commit
+    required: true
+  user-name:
+    description: >-
+      [Optional] Name for the git commit. Defaults to the destination
+      username/organization name
+    required: false
+    default: ''
+  github-server:
+    description: 'Github server'
+    default: 'github.com'
+    required: false
+  repository-username:
+    description: >-
+      Name of the destination username/organization.
+      In https://github.com/kubernetes-sigs/kustomize is: kubernetes-sigs
+    required: true
+  repository-name:
+    description: >-
+      Destination repository
+      In https://github.com/kubernetes-sigs/kustomize is: kustomize
+    required: true
+  branch:
+    description: >-
+      [Optional] set target branch name for the destination repository. Defaults
+      to "main"
+    default: main
+    required: false
+  commit-message:
+    description: >-
+      [Optional] Commit message.
+      ORIGIN_COMMIT, GITHUB_REF, YAML_FILE, YAML_PATH and YAML_VALUE are
+      replaced by they values
+    default: "New image for YAML_FILE, YAML_PATH:YAML_VALUE from ORIGIN_COMMIT"
+    required: false
+
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - '${{ inputs.yq-version }}'
+    - '${{ inputs.yaml-file }}'
+    - '${{ inputs.yaml-path }}'
+    - '${{ inputs.yaml-value }}'
+    - '${{ inputs.user-email }}'
+    - '${{ inputs.user-name }}'
+    - '${{ inputs.github-server }}'
+    - '${{ inputs.repository-username }}'
+    - '${{ inputs.repository-name }}'
+    - '${{ inputs.branch }}'
+    - '${{ inputs.commit-message }}'
+branding:
+  icon: git-commit
+  color: blue
